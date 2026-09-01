@@ -1,0 +1,22 @@
+{
+  "name": "ヒマログ",
+  "short_name": "ヒマログ",
+  "description": "今の自分にちょうどいい暇つぶしを探せるアプリ",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fafaff",
+  "theme_color": "#202024",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
