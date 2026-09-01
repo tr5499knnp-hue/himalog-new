@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ヒマログ">
+<title>ヒマログ</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;color:#202024;background:linear-gradient(180deg,#fafaff 0%,#ededf4 100%);min-height:100vh}
+button{font:inherit;border:0}
+.app{max-width:520px;margin:auto;padding:22px 16px 80px}
+.header{padding:18px 10px 20px}
+.logo{font-size:42px;line-height:1;margin-bottom:10px;animation:float 3s ease-in-out infinite}
+.title{font-size:39px;font-weight:850;letter-spacing:-1.8px}
+.subtitle{margin-top:7px;color:#7b7b83;font-size:14px}
+.mission{position:relative;overflow:hidden;background:#202024;color:#fff;border-radius:27px;padding:23px;margin-bottom:17px;box-shadow:0 14px 35px rgba(0,0,0,.16)}
+.mission:after{content:"";position:absolute;width:130px;height:130px;border-radius:50%;right:-45px;top:-55px;background:rgba(255,255,255,.06)}
+.mission-label{font-size:12px;letter-spacing:1.4px;opacity:.58;margin-bottom:8px}
+.mission-text{font-size:20px;font-weight:750;line-height:1.48;position:relative;z-index:1}
+.mission-button{margin-top:15px;border-radius:14px;padding:11px 15px;background:rgba(255,255,255,.13);color:#fff;font-size:14px;position:relative;z-index:1}
+.card{background:rgba(255,255,255,.96);border-radius:25px;padding:21px;margin-bottom:14px;box-shadow:0 7px 24px rgba(0,0,0,.055)}
+.question{font-size:18px;font-weight:800;margin-bottom:14px}
+.options{display:flex;flex-wrap:wrap;gap:9px}
+.option{border-radius:15px;padding:13px 16px;background:#f0f0f3;color:#333;font-size:15px;transition:transform .16s,background .2s,color .2s,box-shadow .2s}
+.option:active{transform:scale(.95)}
+.option.selected{background:#202024;color:#fff;box-shadow:0 5px 12px rgba(0,0,0,.14)}
+.search{width:100%;border-radius:19px;padding:18px;background:#202024;color:#fff;font-size:17px;font-weight:800;box-shadow:0 12px 28px rgba(0,0,0,.16);transition:transform .15s}
+.search:active{transform:scale(.98)}
+.result{display:none;margin-top:17px;background:#fff;border-radius:26px;padding:21px;box-shadow:0 8px 28px rgba(0,0,0,.07);animation:rise .35s ease}
+.result-title{font-size:22px;font-weight:800;margin-bottom:4px}
+.result-subtitle{color:#85858d;font-size:13px;margin-bottom:15px}
+.activity{display:flex;align-items:center;gap:11px;background:#f5f5f7;border-radius:18px;padding:15px;margin-bottom:9px;transition:transform .15s}
+.activity:active{transform:scale(.985)}
+.activity-main{flex:1;min-width:0}
+.activity-name{font-size:16px;font-weight:700;line-height:1.4}
+.reason{font-size:12px;color:#888;margin-top:4px;line-height:1.35}
+.heart{flex-shrink:0;width:43px;height:43px;border-radius:50%;background:#fff;font-size:23px;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:transform .2s,color .2s}
+.heart:active{transform:scale(.82)}
+.heart.active{color:#ff3158;animation:pop .25s ease}
+.another{width:100%;border-radius:15px;padding:14px;margin-top:4px;background:#ededf0;font-size:15px;font-weight:700}
+.menu{display:flex;gap:10px;margin-top:15px}
+.menu-button{flex:1;border-radius:17px;padding:15px 5px;background:#fff;color:#222;font-size:14px;font-weight:700;box-shadow:0 4px 15px rgba(0,0,0,.04);transition:transform .15s}
+.menu-button:active{transform:scale(.97)}
+.modal{display:none;position:fixed;z-index:100;inset:0;background:rgba(0,0,0,.42)}
+.modal-box{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:520px;max-height:80vh;overflow-y:auto;background:#fff;border-radius:29px 29px 0 0;padding:24px 20px 30px;animation:sheet .28s ease}
+.modal-title{font-size:23px;font-weight:850;margin-bottom:18px}
+.close{width:100%;border-radius:15px;padding:14px;margin-top:17px;background:#202024;color:#fff;font-size:16px}
+.favorite-row{display:flex;align-items:center;gap:10px;background:#f5f5f7;border-radius:15px;padding:14px;margin-bottom:9px}
+.favorite-name{flex:1;font-size:15px}
+.delete{border-radius:10px;padding:8px 10px;background:#fff;font-size:13px}
+.history-date{font-weight:800;margin:17px 0 8px}
+.history-item{background:#f5f5f7;border-radius:14px;padding:13px;margin-bottom:7px;font-size:14px;line-height:1.55}
+.empty{text-align:center;color:#888;padding:30px 0}
+.clear-history{width:100%;border-radius:14px;padding:13px;margin-top:10px;background:#eeeef1;font-size:14px}
+.toast{position:fixed;left:50%;bottom:25px;transform:translateX(-50%) translateY(20px);background:#202024;color:#fff;padding:12px 17px;border-radius:14px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:200;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes sheet{from{transform:translate(-50%,100%)}to{transform:translate(-50%,0)}}
+@keyframes pop{50%{transform:scale(1.25)}}
+@keyframes float{50%{transform:translateY(-4px)}}
+</style>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#202024">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ヒマログ">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+</head>
+<body>
+<div class="app">
+<header class="header">
+<div class="logo">🎲</div>
+<div class="title">ヒマログ</div>
+<div class="subtitle">今のあなたにちょうどいいこと、探そう。</div>
+</header>
+
+<section class="mission">
+<div class="mission-label">TODAY'S MISSION</div>
+<div class="mission-text" id="missionText"></div>
+<button class="mission-button" onclick="newMission()">🎲 別のミッション</button>
+</section>
+
+<section class="card">
+<div class="question">⏰ どのくらい時間ある？</div>
+<div class="options">
+<button class="option" onclick="choose(this,'time','tiny')">5〜10分</button>
+<button class="option" onclick="choose(this,'time','short')">10〜30分</button>
+<button class="option" onclick="choose(this,'time','middle')">30分〜1時間</button>
+<button class="option" onclick="choose(this,'time','long')">1〜2時間</button>
+<button class="option" onclick="choose(this,'time','huge')">2時間以上</button>
+<button class="option" onclick="choose(this,'time','day')">半日〜1日</button>
+</div>
+</section>
+
+<section class="card">
+<div class="question">💰 予算は？</div>
+<div class="options">
+<button class="option" onclick="choose(this,'money','free')">0円</button>
+<button class="option" onclick="choose(this,'money','under500')">〜500円</button>
+<button class="option" onclick="choose(this,'money','little')">500〜1,500円</button>
+<button class="option" onclick="choose(this,'money','more')">1,500円以上</button>
+<button class="option" onclick="choose(this,'money','rich')">3,000円以上</button>
+</div>
+</section>
+
+<section class="card">
+<div class="question">👥 誰といる？</div>
+<div class="options">
+<button class="option" onclick="choose(this,'people','alone')">一人</button>
+<button class="option" onclick="choose(this,'people','friend')">友達と</button>
+<button class="option" onclick="choose(this,'people','family')">家族と</button>
+<button class="option" onclick="choose(this,'people','group')">みんなで</button>
+<button class="option" onclick="choose(this,'people','online')">オンラインで</button>
+</div>
+</section>
+
+<section class="card">
+<div class="question">😐 今の気分は？</div>
+<div class="options">
+<button class="option" onclick="choose(this,'mood','energetic')">😆 元気</button>
+<button class="option" onclick="choose(this,'mood','bored')">😐 暇</button>
+<button class="option" onclick="choose(this,'mood','tired')">😴 疲れた</button>
+<button class="option" onclick="choose(this,'mood','change')">🔄 気分転換したい</button>
+<button class="option" onclick="choose(this,'mood','creative')">🎨 新しいことしたい</button>
+<button class="option" onclick="choose(this,'mood','calm')">😌 ゆっくりしたい</button>
+<button class="option" onclick="choose(this,'mood','social')">🗣️ 誰かと話したい</button>
+<button class="option" onclick="choose(this,'mood','learn')">🧠 何か学びたい</button>
+</div>
+</section>
+
+<section class="card">
+<div class="question">📍 今いる場所は？</div>
+<div class="options">
+<button class="option" onclick="choose(this,'place','home')">🏠 家</button>
+<button class="option" onclick="choose(this,'place','school')">🏫 学校・駅</button>
+<button class="option" onclick="choose(this,'place','outside')">🌆 街・外</button>
+<button class="option" onclick="choose(this,'place','transit')">🚃 電車・移動中</button>
+<button class="option" onclick="choose(this,'place','cafe')">☕ カフェ・お店</button>
+<button class="option" onclick="choose(this,'place','park')">🌳 公園</button>
+</div>
+</section>
+
+<button class="search" onclick="findActivity()">🎯 今の自分に合う暇つぶしを探す</button>
+
+<section class="result" id="result">
+<div class="result-title">✨ あなたへのおすすめ</div>
+<div class="result-subtitle" id="resultSubtitle">今の条件から選んでみたよ。</div>
+<div id="activities"></div>
+<button class="another" onclick="findActivity()">🎲 別の候補を見る</button>
+</section>
+
+<div class="menu">
+<button class="menu-button" onclick="showFavorites()">❤️ お気に入り</button>
+<button class="menu-button" onclick="showHistory()">📊 履歴</button>
+</div>
+</div>
+
+<div class="modal" id="modal">
+<div class="modal-box">
+<div class="modal-title" id="modalTitle">❤️ お気に入り</div>
+<div id="modalBody"></div>
+<button class="close" onclick="closeModal()">閉じる</button>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let selections={time:"",money:"",people:"",mood:"",place:""};
+
+const missions=[
+"いつもと違う道を10分だけ歩いてみる。",
+"スマホを置いて、好きな曲を3曲聴く。",
+"今まで行ったことのない店を探してみる。",
+"写真フォルダからお気に入りの写真を5枚選ぶ。",
+"今日あった小さな出来事を1つメモする。",
+"気になっていた本を10ページだけ読む。",
+"友達にどうでもいいメッセージを送ってみる。",
+"部屋の中で一番いらないものを1つ探す。",
+"新しい音楽を1曲だけ探してみる。",
+"空を見上げて1分だけ何も考えない。",
+"コンビニで見たことのない商品を探す。",
+"昔好きだった曲を1曲聴いてみる。",
+"今やってみたいことを3つ書き出す。",
+"家の中で一番落ち着く場所を探してみる。",
+"知らないジャンルの動画を1本見てみる。"
+];
+function newMission(){
+ document.getElementById("missionText").innerText=missions[Math.floor(Math.random()*missions.length)];
+}
+newMission();
+
+function choose(button,category,value){
+ selections[category]=value;
+ button.parentElement.querySelectorAll(".option").forEach(b=>b.classList.remove("selected"));
+ button.classList.add("selected");
+}
+
+const activities=[
+{text:"🎧 好きな曲を3曲聴く",time:"tiny",money:"free",people:"alone",mood:"calm",place:"home"},
+{text:"🎧 新しい曲を1曲探す",time:"short",money:"free",people:"alone",mood:"bored",place:"home"},
+{text:"🎵 プレイリストを作る",time:"middle",money:"free",people:"alone",mood:"creative",place:"home"},
+{text:"📖 本を10ページ読む",time:"tiny",money:"free",people:"alone",mood:"calm",place:"home"},
+{text:"📚 本屋をゆっくり見る",time:"middle",money:"free",people:"alone",mood:"bored",place:"outside"},
+{text:"✍️ 小説の冒頭を100文字だけ書く",time:"short",money:"free",people:"alone",mood:"creative",place:"home"},
+{text:"🎭 短い脚本のアイデアを3つ考える",time:"middle",money:"free",people:"alone",mood:"creative",place:"home"},
+{text:"📝 今日あったことを3行だけ書く",time:"tiny",money:"free",people:"alone",mood:"calm",place:"home"},
+{text:"💭 将来やってみたいことを10個書く",time:"short",money:"free",people:"alone",mood:"creative",place:"home"},
+{text:"🖼️ スマホの壁紙を変える",time:"tiny",money:"free",people:"alone",mood:"change",place:"home"},
+{text:"📱 写真フォルダを20枚整理する",time:"short",money:"free",people:"alone",mood:"bored",place:"home"},
+{text:"📸 今日のベスト写真を1枚選ぶ",time:"tiny",money:"free",people:"alone",mood:"change",place:"outside"},
+{text:"🎨 スマホで簡単なデザインを作る",time:"middle",money:"free",people:"alone",mood:"creative",place:"home"},
+{text:"🖍️ 落書きをしてみる",time:"short",money:"free",people:"alone",mood:"creative",place:"home"},
+{text:"🎬 映画を1本見る",time:"huge",money:"free",people:"alone",mood:"calm",place:"home"},
+{text:"📺 見たことのないドラマを1話見る",time:"middle",money:"free",people:"alone",mood:"bored",place:"home"},
+{text:"😂 コメディ動画を1本見る",time:"tiny",money:"free",people:"alone",mood:"tired",place:"home"},
+{text:"🔎 知らないジャンルを検索してみる",time:"short",money:"free",people:"alone",mood:"bored",place:"home"},
+{text:"🧠 知らない言葉を5個調べる",time:"short",money:"free",people:"alone",mood:"creative",place:"home"},
+{text:"🌍 行ってみたい場所を地図で探す",time:"short",money:"free",people:"alone",mood:"change",place:"home"},
+{text:"🗺️ 行きたい場所のルートを作る",time:"middle",money:"free",people:"alone",mood:"energetic",place:"home"},
+{text:"🚶 目的地を決めずに10分散歩",time:"short",money:"free",people:"alone",mood:"change",place:"outside"},
+{text:"🚶 いつもと違う道を歩く",time:"middle",money:"free",people:"alone",mood:"change",place:"outside"},
+{text:"📸 街で面白いものを5つ撮る",time:"short",money:"free",people:"alone",mood:"creative",place:"outside"},
+{text:"🌳 公園でぼーっとする",time:"short",money:"free",people:"alone",mood:"calm",place:"outside"},
+{text:"🌆 夕方の街を散歩する",time:"middle",money:"free",people:"alone",mood:"change",place:"outside"},
+{text:"☕ カフェで読書する",time:"middle",money:"little",people:"alone",mood:"calm",place:"outside"},
+{text:"🍦 コンビニで新商品を探す",time:"short",money:"under500",people:"alone",mood:"bored",place:"outside"},
+{text:"🏪 コンビニを一周して気になる商品を探す",time:"short",money:"under500",people:"alone",mood:"change",place:"outside"},
+{text:"📚 図書館を探索する",time:"middle",money:"free",people:"alone",mood:"bored",place:"outside"},
+{text:"🎧 音楽を聴きながら散歩する",time:"middle",money:"free",people:"alone",mood:"change",place:"outside"},
+{text:"🪑 ベンチに座って景色を眺める",time:"short",money:"free",people:"alone",mood:"calm",place:"outside"},
+{text:"🏫 学校の周りを少し探索する",time:"short",money:"free",people:"alone",mood:"change",place:"school"},
+{text:"🚉 駅の周辺を歩いてみる",time:"short",money:"free",people:"alone",mood:"change",place:"school"},
+{text:"📱 スマホの不要なアプリを整理する",time:"short",money:"free",people:"alone",mood:"bored",place:"school"},
+{text:"📝 明日の予定を整理する",time:"tiny",money:"free",people:"alone",mood:"calm",place:"school"},
+{text:"🎧 待ち時間に好きな曲を聴く",time:"tiny",money:"free",people:"alone",mood:"tired",place:"school"},
+{text:"📖 待ち時間に本を読む",time:"short",money:"free",people:"alone",mood:"bored",place:"school"},
+{text:"🧩 パズルや脳トレをする",time:"short",money:"free",people:"alone",mood:"energetic",place:"home"},
+{text:"🎮 一人用ゲームを少し遊ぶ",time:"middle",money:"free",people:"alone",mood:"bored",place:"home"},
+{text:"🎮 友達とゲームをする",time:"middle",money:"free",people:"friend",mood:"energetic",place:"home"},
+{text:"😂 友達とくだらない話をする",time:"short",money:"free",people:"friend",mood:"energetic",place:"school"},
+{text:"📸 友達と写真を撮る",time:"short",money:"free",people:"friend",mood:"energetic",place:"outside"},
+{text:"🚶 友達と目的地なしで歩く",time:"middle",money:"free",people:"friend",mood:"change",place:"outside"},
+{text:"🍦 友達とコンビニに行く",time:"short",money:"under500",people:"friend",mood:"bored",place:"outside"},
+{text:"☕ 友達とカフェで話す",time:"middle",money:"little",people:"friend",mood:"calm",place:"outside"},
+{text:"🏀 友達と公園で軽く遊ぶ",time:"middle",money:"free",people:"friend",mood:"energetic",place:"outside"},
+{text:"🎬 友達と映画を見る",time:"huge",money:"more",people:"friend",mood:"bored",place:"outside"},
+{text:"🎤 友達と好きな曲を聴き合う",time:"middle",money:"free",people:"friend",mood:"energetic",place:"home"},
+{text:"🃏 友達とカードゲームをする",time:"short",money:"free",people:"friend",mood:"energetic",place:"home"},
+{text:"🧠 友達とクイズを出し合う",time:"short",money:"free",people:"friend",mood:"energetic",place:"school"},
+{text:"📱 お互いのおすすめ動画を見せ合う",time:"short",money:"free",people:"friend",mood:"bored",place:"home"},
+{text:"🗺️ 友達と行きたい場所を決める",time:"short",money:"free",people:"friend",mood:"creative",place:"school"},
+{text:"🍳 家族と料理する",time:"huge",money:"little",people:"family",mood:"energetic",place:"home"},
+{text:"🎲 家族とボードゲームをする",time:"middle",money:"free",people:"family",mood:"energetic",place:"home"},
+{text:"📺 家族と映画を見る",time:"huge",money:"free",people:"family",mood:"calm",place:"home"},
+{text:"🍜 家族と近所のお店に行く",time:"middle",money:"little",people:"family",mood:"change",place:"outside"},
+{text:"🚶 家族と散歩する",time:"middle",money:"free",people:"family",mood:"change",place:"outside"},
+{text:"☕ 家族とカフェに行く",time:"middle",money:"little",people:"family",mood:"calm",place:"outside"},
+{text:"📸 家族写真を整理する",time:"short",money:"free",people:"family",mood:"calm",place:"home"},
+{text:"🍰 家族とおやつを作る",time:"middle",money:"little",people:"family",mood:"energetic",place:"home"},
+{text:"🧹 部屋を10分だけ片付ける",time:"short",money:"free",people:"alone",mood:"change",place:"home"},
+{text:"🛏️ ベッド周りだけ整える",time:"tiny",money:"free",people:"alone",mood:"tired",place:"home"},
+{text:"🧺 服を少し整理する",time:"short",money:"free",people:"alone",mood:"change",place:"home"},
+{text:"🪴 部屋のレイアウトを考える",time:"middle",money:"free",people:"alone",mood:"creative",place:"home"},
+{text:"🧼 机の上だけきれいにする",time:"tiny",money:"free",people:"alone",mood:"change",place:"home"},
+{text:"📦 使っていない物を3つ見つける",time:"short",money:"free",people:"alone",mood:"change",place:"home"},
+{text:"🍳 簡単なおやつを作る",time:"middle",money:"little",people:"alone",mood:"energetic",place:"home"},
+{text:"🥤 好きな飲み物を作る",time:"tiny",money:"under500",people:"alone",mood:"tired",place:"home"},
+{text:"🧃 冷蔵庫にあるもので飲み物を考える",time:"tiny",money:"free",people:"alone",mood:"creative",place:"home"},
+{text:"🎙️ 一人ラジオごっこをしてみる",time:"short",money:"free",people:"alone",mood:"creative",place:"home"},
+{text:"🎤 好きな曲を口ずさむ",time:"tiny",money:"free",people:"alone",mood:"energetic",place:"home"},
+{text:"🎹 楽器や音楽アプリを触る",time:"middle",money:"free",people:"alone",mood:"creative",place:"home"},
+{text:"🎞️ 昔撮った動画を見返す",time:"short",money:"free",people:"alone",mood:"tired",place:"home"},
+{text:"🕰️ 昔好きだった作品を見返す",time:"middle",money:"free",people:"alone",mood:"calm",place:"home"},
+{text:"💡 新しい趣味候補を5つ調べる",time:"short",money:"free",people:"alone",mood:"creative",place:"home"},
+{text:"🎯 今日できそうな小さな目標を1つ決める",time:"tiny",money:"free",people:"alone",mood:"energetic",place:"home"},
+{text:"🌤️ 空の写真を撮る",time:"tiny",money:"free",people:"alone",mood:"change",place:"outside"},
+{text:"🌳 木や花を探しながら歩く",time:"middle",money:"free",people:"alone",mood:"change",place:"outside"},
+{text:"🏙️ 知らない通りを1本だけ歩く",time:"middle",money:"free",people:"alone",mood:"change",place:"outside"},
+{text:"🛍️ 商店街をゆっくり見る",time:"middle",money:"little",people:"alone",mood:"bored",place:"outside"},
+{text:"🏛️ 近くの公共施設を探す",time:"middle",money:"free",people:"alone",mood:"bored",place:"outside"},
+{text:"🚃 電車の窓から景色を眺める",time:"short",money:"free",people:"alone",mood:"calm",place:"transit"},
+{text:"🎧 移動中に新しいアルバムを聴く",time:"middle",money:"free",people:"alone",mood:"creative",place:"transit"},
+{text:"📖 移動中に短い記事を読む",time:"short",money:"free",people:"alone",mood:"bored",place:"transit"},
+{text:"📝 移動中に今日の予定を整理する",time:"tiny",money:"free",people:"alone",mood:"calm",place:"transit"},
+{text:"🗺️ 次に行きたい場所を3つ探す",time:"short",money:"free",people:"alone",mood:"change",place:"transit"},
+{text:"📸 移動中に窓から面白い景色を探す",time:"tiny",money:"free",people:"alone",mood:"creative",place:"transit"},
+{text:"🎧 ポッドキャストを1本聴く",time:"middle",money:"free",people:"alone",mood:"calm",place:"transit"},
+{text:"🧠 しりとりを一人で10個考える",time:"tiny",money:"free",people:"alone",mood:"bored",place:"transit"},
+{text:"📱 ホーム画面のアプリを整理する",time:"short",money:"free",people:"alone",mood:"change",place:"home"},
+{text:"🔤 スマホの写真にタイトルをつける",time:"short",money:"free",people:"alone",mood:"creative",place:"home"},
+{text:"🧾 財布やカバンの中を整理する",time:"short",money:"free",people:"alone",mood:"change",place:"home"},
+{text:"🎨 好きな映画のポスター風デザインを作る",time:"middle",money:"free",people:"alone",mood:"creative",place:"home"},
+{text:"📻 ラジオ番組を1本聴く",time:"middle",money:"free",people:"alone",mood:"calm",place:"home"},
+{text:"🎥 自分だけの短い動画を撮ってみる",time:"middle",money:"free",people:"alone",mood:"creative",place:"home"},
+{text:"🧪 家にある材料で簡単な実験を調べる",time:"short",money:"free",people:"alone",mood:"creative",place:"home"},
+{text:"🧩 無料のクイズに挑戦する",time:"short",money:"free",people:"alone",mood:"energetic",place:"home"},
+{text:"🌎 地図で知らない国を1つ調べる",time:"short",money:"free",people:"alone",mood:"creative",place:"home"},
+{text:"📝 気になる映画・本を5つメモする",time:"tiny",money:"free",people:"alone",mood:"creative",place:"home"},
+{text:"🎬 昔好きだった映画の予告を見返す",time:"short",money:"free",people:"alone",mood:"calm",place:"home"},
+{text:"📚 図書館で普段読まない棚を見る",time:"middle",money:"free",people:"alone",mood:"creative",place:"outside"},
+{text:"🪟 窓を開けて外の空気を感じる",time:"tiny",money:"free",people:"alone",mood:"calm",place:"home"},
+{text:"🌿 植物の手入れをする",time:"short",money:"free",people:"alone",mood:"calm",place:"home"},
+{text:"🧘 深呼吸しながら静かに休憩する",time:"tiny",money:"free",people:"alone",mood:"tired",place:"home"},
+{text:"🧠 今日の「よかったこと」を3つ探す",time:"tiny",money:"free",people:"alone",mood:"calm",place:"home"},
+{text:"🎲 家族としりとり・連想ゲームをする",time:"short",money:"free",people:"family",mood:"energetic",place:"home"},
+{text:"📷 友達とテーマを決めて写真を撮る",time:"middle",money:"free",people:"friend",mood:"creative",place:"outside"},
+{text:"🗣️ 友達と最近ハマっているものを紹介し合う",time:"short",money:"free",people:"friend",mood:"energetic",place:"school"},
+{text:"🌐 オンラインで友達とゲームをする",time:"middle",money:"free",people:"online",mood:"social",place:"home"},
+{text:"💬 オンラインで友達と雑談する",time:"short",money:"free",people:"online",mood:"social",place:"home"},
+{text:"🎮 みんなでオンラインゲームをする",time:"long",money:"free",people:"group",mood:"energetic",place:"home"},
+{text:"🧠 興味のあることを30分だけ勉強する",time:"middle",money:"free",people:"alone",mood:"learn",place:"home"},
+{text:"🔍 気になるテーマを深掘りする",time:"long",money:"free",people:"alone",mood:"learn",place:"home"},
+{text:"☕ カフェでゆっくり過ごす",time:"middle",money:"little",people:"alone",mood:"calm",place:"cafe"},
+{text:"🗣️ カフェで友達と話す",time:"middle",money:"little",people:"friend",mood:"social",place:"cafe"},
+{text:"🌳 公園で友達と話す",time:"middle",money:"free",people:"friend",mood:"social",place:"park"},
+{text:"🏃 公園で軽く体を動かす",time:"middle",money:"free",people:"alone",mood:"energetic",place:"park"},
+{text:"🎟️ 休日のイベントを探して出かける",time:"day",money:"more",people:"friend",mood:"change",place:"outside"},
+{text:"🏙️ 一日かけて街をぶらぶらする",time:"day",money:"little",people:"alone",mood:"change",place:"outside"},
+{text:"🛍️ 友達とショッピングする",time:"long",money:"rich",people:"friend",mood:"energetic",place:"outside"}
+];
+
+const reasonMap={
+time:{tiny:"5〜10分でできる",short:"短時間でできる",middle:"ちょうどいい時間",long:"しっかり楽しめる",huge:"じっくり楽しめる",day:"半日〜1日楽しめる"},
+money:{free:"お金をかけない",under500:"500円以内で楽しめる",little:"少しだけ使える",more:"予算を使って楽しめる",rich:"しっかり予算を使える"},
+people:{alone:"一人向き",friend:"友達と楽しめる",family:"家族と楽しめる",group:"みんなで楽しめる",online:"オンラインで楽しめる"},
+mood:{energetic:"今の元気を活かせる",bored:"退屈を変えられる",tired:"無理なくできる",change:"気分転換になる",creative:"新しいことを楽しめる",calm:"ゆっくり過ごせる",social:"誰かと話して楽しめる",learn:"知る楽しさを味わえる"},
+place:{home:"家でできる",school:"学校・駅周辺向き",outside:"外にいる今に合う",transit:"移動中にできる",cafe:"カフェ・お店でできる",park:"公園でできる"}
+};
+
+function getFavorites(){return JSON.parse(localStorage.getItem("favorites")||"[]")}
+
+function toggleFavorite(text,button){
+ let favorites=getFavorites(),index=favorites.indexOf(text);
+ if(index===-1){favorites.push(text);button.innerText="♥";button.classList.add("active");showToast("❤️ お気に入りに追加しました")}
+ else{favorites.splice(index,1);button.innerText="♡";button.classList.remove("active");showToast("お気に入りから削除しました")}
+ localStorage.setItem("favorites",JSON.stringify(favorites));
+}
+
+function findActivity(){
+ for(const key of Object.keys(selections)){
+  if(!selections[key]){showToast("全部の項目を選んでみて！");return}
+ }
+ let scored=activities.map(a=>{
+  let score=0,matches=[];
+  for(const key of Object.keys(selections)){
+   if(a[key]===selections[key]){score+=(key==="people"||key==="place"?4:key==="time"||key==="mood"?3:2);matches.push(reasonMap[key][selections[key]])}
+  }
+  return {activity:a,score,matches};
+ });
+ scored.sort((a,b)=>b.score-a.score);
+ const best=scored[0].score;
+ let pool=scored.filter(x=>x.score>=best-4).sort((a,b)=>b.score-a.score || Math.random()-.5).slice(0,6);
+ if(pool.length<3){
+   pool=scored.sort((a,b)=>b.score-a.score || Math.random()-.5).slice(0,6);
+ }
+ displayActivities(pool);
+ saveHistory(pool.map(x=>x.activity.text));
+ document.getElementById("result").style.display="block";
+ document.getElementById("resultSubtitle").innerText=`「${selections.people==="alone"?"一人":selections.people==="friend"?"友達と":"家族と"}」「${selections.mood==="energetic"?"元気":selections.mood==="bored"?"暇":selections.mood==="tired"?"疲れた":"気分転換したい"}」な今に合わせて選んだよ。`;
+ document.getElementById("result").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function displayActivities(items){
+ const favorites=getFavorites();
+ document.getElementById("activities").innerHTML=items.map(item=>{
+  const text=item.activity.text,active=favorites.includes(text);
+  const reasons=item.matches.slice(0,2).join("・");
+  return `<div class="activity">
+   <div class="activity-main"><div class="activity-name">${text}</div><div class="reason">✓ ${reasons}</div></div>
+   <button class="heart ${active?"active":""}" onclick="toggleFavorite('${escapeText(text)}',this)">${active?"♥":"♡"}</button>
+  </div>`;
+ }).join("");
+}
+
+function escapeText(text){return text.replace(/\\/g,"\\\\").replace(/'/g,"\\'")}
+
+function saveHistory(items){
+ let history=JSON.parse(localStorage.getItem("history")||"[]");
+ history.unshift({date:new Date().toISOString(),items});
+ localStorage.setItem("history",JSON.stringify(history.slice(0,50)));
+}
+
+function showFavorites(){
+ const favorites=getFavorites();
+ document.getElementById("modalTitle").innerText="❤️ お気に入り";
+ document.getElementById("modalBody").innerHTML=favorites.length?favorites.map((text,i)=>`<div class="favorite-row"><div class="favorite-name">${text}</div><button class="delete" onclick="deleteFavorite(${i})">🗑️ 削除</button></div>`).join(""):`<div class="empty">まだお気に入りがないよ。<br>気になったものの♡を押してみて！</div>`;
+ document.getElementById("modal").style.display="block";
+}
+function deleteFavorite(index){let f=getFavorites();f.splice(index,1);localStorage.setItem("favorites",JSON.stringify(f));showFavorites();showToast("お気に入りから削除しました")}
+
+function showHistory(){
+ const history=JSON.parse(localStorage.getItem("history")||"[]");
+ document.getElementById("modalTitle").innerText="📊 履歴";
+ if(!history.length){document.getElementById("modalBody").innerHTML=`<div class="empty">まだ履歴がないよ。<br>暇つぶしを探すとここに残るよ！</div>`}
+ else{
+  let groups={};
+  history.forEach(r=>{
+   const d=new Date(r.date),today=new Date(),y=new Date();y.setDate(y.getDate()-1);
+   let label=d.toDateString()===today.toDateString()?"今日":d.toDateString()===y.toDateString()?"昨日":d.toLocaleDateString("ja-JP",{month:"long",day:"numeric"});
+   (groups[label]??=[]).push(r);
+  });
+  let html="";
+  Object.keys(groups).forEach(label=>{
+   html+=`<div class="history-date">${label}</div>`;
+   groups[label].forEach(r=>{
+    const t=new Date(r.date).toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit"});
+    html+=`<div class="history-item"><strong>${t}</strong><br>${r.items.join("<br>")}</div>`;
+   });
+  });
+  html+=`<button class="clear-history" onclick="clearHistory()">🗑️ 履歴をすべて削除</button>`;
+  document.getElementById("modalBody").innerHTML=html;
+ }
+ document.getElementById("modal").style.display="block";
+}
+function clearHistory(){localStorage.removeItem("history");showHistory();showToast("履歴を削除しました")}
+function closeModal(){document.getElementById("modal").style.display="none"}
+function showToast(message){const t=document.getElementById("toast");t.innerText=message;t.classList.add("show");clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove("show"),1800)}
+document.getElementById("modal").addEventListener("click",e=>{if(e.target===e.currentTarget)closeModal()});
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(console.error));
+}
+</script>
+
+</body>
+</html>
